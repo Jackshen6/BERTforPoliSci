@@ -11,24 +11,26 @@
 
 
 
-import bert_pipeline as bp
+import bert_cap as bc
 import pytest
 
 
-def test_process_network_data():
+
+def test_recode_data():
 
     ex_speech = list()
     ex_speech.append("It is the economy stupid!")
     ex_speech.append("Hello World")
-    ex_code = [1, 99]
+    ex_code = [101, 99]
     
-    speech, topicCode = bp.process_network_data(ex_speech,ex_code)
+    speech, topicCode = bc.recode_data(ex_speech, ex_code, sub_to_major = 1)
     
     # test if function returns output in the correct format
-    assert isinstance(topicCode[0], str)
-    # test if function transforms topic codes as required
-    assert topicCode[1] == "0"
-
+    assert isinstance(topicCode[0], int)
+    # test if function transforms "other" category to 0
+    assert topicCode[1] == 0
+    # test if function extracts major topic from sub-topic
+    assert topicCode[0] == 1
 
 
 
@@ -36,7 +38,7 @@ def test_get_categories():
     
     ex_topics = ['0','0','1','1','1','1','2','3','3','4','4','4','5','6']
 
-    cats = bp.get_categories(ex_topics)
+    cats = bc.get_categories(ex_topics)
 
     # test if function returns the right number of categories
     assert len(cats) == 7
@@ -65,7 +67,7 @@ def test_partition_training_data():
     
     
     # Test if the function shuffled both variables in the same way
-    data_train, data_test = bp.partition_training_data(ex_speech, ex_code, test_size = 0.5)
+    data_train, data_test = bc.partition_training_data(ex_speech, ex_code, test_size = 0.5)
     
     for i in range(len(data_train)):
         if data_train[i][0] == "It is the economy stupid!":
@@ -75,7 +77,7 @@ def test_partition_training_data():
     
     # Test if the function raises the error when training and test samples do not have the same categories
     with pytest.raises(ValueError) as excinfo:
-            data_train, data_test = bp.partition_training_data(ex_speech, ex_code, test_size = 0.1)
+            data_train, data_test = bc.partition_training_data(ex_speech, ex_code, test_size = 0.1)
 
     assert "Missing categories from the test sample:" in str(excinfo.value)
 
