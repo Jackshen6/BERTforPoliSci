@@ -100,6 +100,13 @@ def partition_training_data(speech, topicCode, test_size = 0.2, retry = 1):
     unique2 = np.unique([item[1] for item in data_test])
   
     if len(unique1) != len(unique2):
+        
+      # establish whether it is possible to fit all categories in the sampling test
+      if retry == 1 and len(data) * test_size < len(unique1):
+          raise Warning('It is not possible to include all categories in training sample. Force: retry = 0.')
+          retry = 0
+        
+      
       # if retry is set to 0, raise error and exit
       if retry == 0:
         unbalanced = 0

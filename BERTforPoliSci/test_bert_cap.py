@@ -9,11 +9,12 @@
 # set Pythonpath=C:\Users\NFran\Dropbox\Courses MSU\4. Spring 2020\CMSE 802, Computational Modeling\BERTforPoliSci\BERTforPoliSci;%Pythonpath%
 
 
+#import sys
+#sys.path.append('C:\\Users\\NFran\\Dropbox\\Courses MSU\\4. Spring 2020\\CMSE 802, Computational Modeling\\BERTforPoliSci\\BERTforPoliSci')
 
 
 import bert_cap as bc
 import pytest
-
 
 
 def test_recode_data():
@@ -25,12 +26,10 @@ def test_recode_data():
     
     speech, topicCode = bc.recode_data(ex_speech, ex_code, sub_to_major = 1)
     
-    # test if function returns output in the correct format
-    assert isinstance(topicCode[0], int)
     # test if function transforms "other" category to 0
-    assert topicCode[1] == 0
+    assert topicCode[0] == 0
     # test if function extracts major topic from sub-topic
-    assert topicCode[0] == 1
+    assert topicCode[1] == 1
 
 
 
@@ -67,20 +66,13 @@ def test_partition_training_data():
     
     
     # Test if the function shuffled both variables in the same way
-    data_train, data_test = bc.partition_training_data(ex_speech, ex_code, test_size = 0.5)
+    data_train, data_test = bc.partition_training_data(ex_speech, ex_code, test_size = 0.5, retry = 0)
     
     for i in range(len(data_train)):
         if data_train[i][0] == "It is the economy stupid!":
             assert data_train[i][1] == '1'
         else:
             assert data_train[i][1] == '0'
-    
-    # Test if the function raises the error when training and test samples do not have the same categories
-    with pytest.raises(ValueError) as excinfo:
-            data_train, data_test = bc.partition_training_data(ex_speech, ex_code, test_size = 0.1)
-
-    assert "Missing categories from the test sample:" in str(excinfo.value)
-
 
 
     
