@@ -1,0 +1,20 @@
+#!/bin/bash --login
+#SBATCH --time=01:59:00
+#SBATCH -c 1
+#SBATCH -n 1
+#SBATCH --gres=gpu:1
+#SBATCH --mem=12gb
+
+
+conda activate base
+module load powertools
+which python
+cat $0
+
+cd /mnt/ufs18/home-186/frantze4/bert_cap_files/
+
+time srun python nn_validate.py
+
+scontrol show job $SLURM_JOB_ID
+js ${SLURM_JOB_ID}
+
