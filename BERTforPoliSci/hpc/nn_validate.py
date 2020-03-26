@@ -24,7 +24,6 @@ from ktrain import text
 
 ### import custom functions
 import sys
-sys.path.append('/mnt/ufs18/home-186/frantze4/bert_cap_files')
 import bert_cap as bc
 
 
@@ -36,7 +35,7 @@ np.random.seed(seed)
 tf.random.set_seed(seed)
 
 # Load US bills
-loc = ("/mnt/ufs18/home-186/frantze4/bert_cap_files/US-Legislative-congressional_bills_19.3_3_2.csv")
+loc = ("./US-Legislative-congressional_bills_19.3_3_2.csv")
 # load data set 1
 bills = pd.read_csv(loc, encoding = "utf-8")
 
@@ -78,55 +77,3 @@ plt.figure(figsize=(10, 8))
 plt.title('Heatmap for US test data')
 sn.heatmap(confusion, annot=True, cmap="BuPu")
 
-### Zimbabwe: Evaluations
-
-# Give the location of the file 
-loc2 = ("/content/gdrive/My Drive/Denmark/bills_Zimbabwe, CAP coded.xlsx")
-# load data set
-Zimbabwe_bills = pd.read_excel(loc2, encoding = "utf-8")
-
-# Drop 0 since we did not have them in the training data 
-Zimbabwe_bills = Zimbabwe_bills[Zimbabwe_bills['CAP majortopic'] != 99]      # 0s are coded as 100 here
-Zimbabwe_bills = Zimbabwe_bills[Zimbabwe_bills['CAP majortopic'] != 0]
-
-# Prepare main variables
-speech, topicCode =  bc.recode_data(Zimbabwe_bills.Bill, Zimbabwe_bills['CAP majortopic'])
-
-# make predictions
-y_probs = predictor.predict(speech, return_proba=True) # probabilities for each class
-# evaluate results
-metrics, confusion = bc.evaluation_metrics(y_probs, topicCode)
-
-# plot confusion matrix
-plt.figure(figsize=(10, 8))
-plt.title('Heatmap for Zimbabwe')
-sn.heatmap(confusion, annot=True, cmap="BuPu")
-
-### Ghana: Evaluations
-
-# Give the location of the file 
-loc3 = ("/content/gdrive/My Drive/Denmark/Ghana Acts_Eda coded.xlsx")
-# load data set
-Ghana_acts = pd.read_excel(loc3, encoding = "utf-8")
-
-# drop if topic is not coded
-Ghana_acts = Ghana_acts.dropna(subset=['Codes'])
-
-# Drop 0 since we did not have them in the training data 
-Ghana_acts = Ghana_acts[Ghana_acts['Codes'] != 99]      # 0s are coded as 100 here
-Ghana_acts = Ghana_acts[Ghana_acts['Codes'] != 0]
-
-# extract major topic
-codes = bc.sub_to_major(Ghana_acts['Codes'])
-# Prepare main variables
-speech, topicCode =  bc.recode_data(Ghana_acts.Act, codes)
-
-# make predictions
-y_probs = predictor.predict(speech, return_proba=True) # probabilities for each class
-# evaluate results
-metrics, confusion = bc.evaluation_metrics(y_probs, topicCode)
-
-# plot confusion matrix
-plt.figure(figsize=(10, 8))
-plt.title('Heatmap for Ghana')
-sn.heatmap(confusion, annot=True, cmap="BuPu")

@@ -5,13 +5,13 @@
 #SBATCH --gres=gpu:1
 #SBATCH --mem=12gb
 
-
-conda activate base
+conda activate ./envs 
 module load powertools
 which python
 cat $0
+conda info
 
-cd /mnt/ufs18/home-186/frantze4/bert_cap_files/
+env > ${hostname}.env
 
 time srun python nn_validate.py
 
