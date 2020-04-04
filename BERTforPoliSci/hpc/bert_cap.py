@@ -11,7 +11,9 @@ Created on Tue Mar  3 19:51:48 2020
 # imports
 import numpy as np 
 import random
-
+import ktrain
+from ktrain import text
+from scipy import stats
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, cohen_kappa_score
 
@@ -146,6 +148,72 @@ def nn_inputs(data_train, data_test = [], data_validate = []):
     return texts_train, labels_train, texts_test, labels_test, texts_validate, labels_validate
 
 
+
+
+def train_predictors(train_data, val_data, texts_test, transformer, learning_rate = 0.0001, epochs = 5,  
+                   batch_size=6, num_learners = 1):
+
+    '''
+    This is a wrapper which trains a set number of learners based on a specific
+    training set. Then each learner codes the new cases and the category most
+    learners predict as correct is chosen.
+    '''
+
+    # initialize list of predictors and predictions
+    predictors = list()
+    y_predicted = list()
+    y_probabilities = list()
+
+    # main loop
+    for i in range(num_learners):
+
+      # get model and initialize learner
+      model = transformer.get_classifier()
+      learner = ktrain.get_learner(model, train_data = train_data, val_data = val_data, batch_size = batch_size)
+
+      # append predictor and probs name to lists
+      predictors.append(str('predictor' + str(i)))
+      y_predicted.append(str('y_preds' + str(i)))
+      y_probabilities.append(str('y_probs' + str(i)))
+      # train learner
+      print("\n Training learner " + str(i))
+      learner.fit_onecycle(learning_rate, epochs)
+
+      predictors[i] = ktrain.get_predictor(learner.model, preproc = transformer)
+      y_predicted[i] = predictors[i].predict(texts_test) # get predicted class
+
+    
+    # pick the most popular answer
+    y_predicted = np.array(y_predicted)
+    y_final = stats.mode(y_predicted)
+
+
+    return predictors, y_final
+
+
+
+
+def use_predictors(predictors, text):
+    
+    '''
+    This is a wrapper which uses the trained predictors. Each predictor codes 
+    the new cases and the category most predictors predict as correct is chosen.
+    '''
+
+
+    # initialize list of predictions
+    y_predicted = list()
+
+    for i in range(len(predictors)):
+        y_predicted.append(str('y_preds' + str(i)))
+        y_predicted[i] = predictors[i].predict(text) # get predicted class
+
+    # pick the most popular answer
+    y_predicted = np.array(y_predicted)
+    y_final = stats.mode(y_predicted)
+
+
+    return y_predicted, y_final
 
 
 

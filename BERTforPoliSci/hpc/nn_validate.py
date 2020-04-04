@@ -23,11 +23,10 @@ import ktrain
 from ktrain import text
 
 ### import custom functions
-import sys
 import bert_cap as bc
 
 
-test_size = 0.30
+test_size = 0.70
 seed = 100000
 
 random.seed(seed)
@@ -37,12 +36,12 @@ tf.random.set_seed(seed)
 # Load US bills
 loc = ("./US-Legislative-congressional_bills_19.3_3_2.csv")
 # load data set 1
-bills = pd.read_csv(loc, encoding = "utf-8")
+bills = pd.read_csv(loc, encoding = "utf-8", low_memory=False)
 
 ## prepare dataset
 
 # drop if before 1990
-bills = bills[bills.year >= 1990]
+bills = bills[bills.year >= 2007]
 
 ## use custom functions
 
@@ -57,23 +56,37 @@ texts_train, labels_train, texts_test, labels_test = bc.nn_inputs(data_train, da
 
 ### Preprocess the Data and Create a Transformer Model
 MODEL_NAME = 'bert-base-uncased'
-t = text.Transformer(MODEL_NAME, maxlen=40, class_names=categories)
+t = text.Transformer(MODEL_NAME, maxlen=50)
 trn = t.preprocess_train(texts_train, labels_train)
 val = t.preprocess_test(texts_test, labels_test)
-model = t.get_classifier()
-learner = ktrain.get_learner(model, train_data=trn, val_data=val, batch_size=20)
 
-### Train and Fine-Tune the Model on the training dataset
-learner.fit_onecycle(0.0001, 2)   # set training rate and number of epochs
 
-predictor = ktrain.get_predictor(learner.model, preproc = t)
-# feed test data to the trained model
-y_probs = predictor.predict(texts_test, return_proba=True) # probabilities for each class
-# evaluate results
-metrics, confusion = bc.evaluation_metrics(y_probs, labels_test)
+### Train and test predictors
+predictors, y_final = bc.train_predictors(train_data=trn, val_data=val, texts_test = texts_test, transformer = t, learning_rate = 0.0001, epochs = 5,  
+                   batch_size=10, num_learners = 3)
 
+### Print results
+y_final2 = np.array(y_final[0][:1][0])
+metrics, confusion = bc.evaluation_metrics(y_final2, labels_test)
+
+
+"""
 # plot confusion matrix
 plt.figure(figsize=(10, 8))
 plt.title('Heatmap for US test data')
 sn.heatmap(confusion, annot=True, cmap="BuPu")
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
 
