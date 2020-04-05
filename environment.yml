@@ -8,3 +8,5 @@ dependencies:
   - seaborn
   - numpy
   - scikit-learn
+  - pip:
+    - ktrain
