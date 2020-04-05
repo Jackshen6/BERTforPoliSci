@@ -1,0 +1,10 @@
+channels:
+  - defaults
+dependencies:
+  - pylint
+  - pdoc3
+  - pytest
+  - tensorflow
+  - seaborn
+  - numpy
+  - scikit-learn
