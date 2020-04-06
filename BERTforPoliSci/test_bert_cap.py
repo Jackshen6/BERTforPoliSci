@@ -6,7 +6,7 @@
 # set Pythonpath=C:\Users\NFran\Dropbox\Courses MSU\4. Spring 2020\CMSE
 # 802, Computational Modeling\BERTforPoliSci\BERTforPoliSci;%Pythonpath%
 
-import bert_cap as bc
+from BERTforPoliSci import bert_cap as bc
 import pytest
 
 

@@ -1,0 +1,11 @@
+channels:
+  - defaults
+dependencies:
+  - pylint
+  - pdoc3
+  - pytest
+  - tensorflow-gpu=2.1
+  - seaborn
+  - random
+  - numpy
+  - sklearn
